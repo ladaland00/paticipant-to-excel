@@ -25,8 +25,10 @@ wait = WebDriverWait(driver, 10)
 json_data = pd.read_json('data.json')
 
 flat_data = []
-for _, item in json_data.iterrows():
+error_data = []
+for index, item in json_data.iterrows():
     # Check if "coveredEntities" is not empty
+    print(index)
     try:
         driver.get("https://www.dataprivacyframework.gov/s/participant-search/participant-detail?id="+item["id"]+"&status=Inactive")    
         time.sleep(2) 
@@ -60,15 +62,18 @@ for _, item in json_data.iterrows():
                 "Phone": phone.text  # You can fill this in as needed
             })
     except NoSuchElementException:
+        error_data.append(item["id"])
         print("No data")
 
 df = pd.DataFrame(flat_data)
+de = pd.DataFrame(error_data)
+
 # Create an Excel writer
 excel_writer = pd.ExcelWriter('output.xlsx', engine='xlsxwriter')
 
 # Write the DataFrame to the Excel file
 df.to_excel(excel_writer, sheet_name='Sheet1', index=False)
-
+de.to_excel(excel_writer, sheet_name='Sheet2', index=False)
 # Save the Excel file
 
 excel_writer.close()
