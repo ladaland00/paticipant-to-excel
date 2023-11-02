@@ -30,41 +30,51 @@ for index, item in json_data.iterrows():
     # Check if "coveredEntities" is not empty
     print(index)
     try:
-        driver.get("https://www.dataprivacyframework.gov/s/participant-search/participant-detail?id="+item["id"]+"&status=Inactive")    
-        time.sleep(2) 
-
+        driver.get("https://www.dataprivacyframework.gov/s/participant-search/participant-detail?id=" +
+                   item["id"]+"&status=Inactive")
+        wait.until(EC.visibility_of_element_located(
+            (By.XPATH, "//*[@class='slds-grid slds-wrap slds-p-around_small']")))
         parent = driver.find_element(
-    By.XPATH, "//*[@class='slds-grid slds-wrap slds-p-around_small']")   
-        print("parent",parent.text)
+            By.XPATH, "//*[@class='slds-grid slds-wrap slds-p-around_small']")
+        print("parent", parent.text)
         name = parent.find_element(
-    By.XPATH, "./div[1]/div[1]")  
-        print("Name",name.text)
+            By.XPATH, "./div[1]/div[1]")
+        print("Name", name.text)
         title = parent.find_element(
-    By.XPATH, "./div[1]/div[2]")  
-        email= parent.find_element(
-    By.XPATH, "./div[2]/div[1]/a")  
-        phone= parent.find_element(
-    By.XPATH, "./div[2]/div[2]/a")  
-        address1= parent.find_element(
-    By.XPATH, "./div[1]/div[3]")  
-        address2= parent.find_element(
-    By.XPATH, "./div[1]/div[4]")   
-        address3= parent.find_element(
-    By.XPATH, "./div[1]/div[5]")  
+            By.XPATH, "./div[1]/div[2]")
+        email = parent.find_element(
+            By.XPATH, "./div[2]/div[1]/a")
+        phone = parent.find_element(
+            By.XPATH, "./div[2]/div[2]/a")
+        address1 = parent.find_element(
+            By.XPATH, "./div[1]/div[3]")
+        address2 = parent.find_element(
+            By.XPATH, "./div[1]/div[4]")
+        address3 = parent.find_element(
+            By.XPATH, "./div[1]/div[5]")
         flat_data.append({
-                "Company": item["name"],
-                "Name":  name.text,
-                "Title": title.text,  # You can fill this in as needed
-                "Email": email.text,  # You can fill this in as needed
-                "Address 1": address1.text,
-                "Address 2":  address2.text,
-                "Address 3": address3.text,
-                "Phone": phone.text  # You can fill this in as needed
-            })
+            "Company": item["name"],
+            "Name":  name.text,
+            "Title": title.text,  # You can fill this in as needed
+            "Email": email.text,  # You can fill this in as needed
+            "Address 1": address1.text,
+            "Address 2":  address2.text,
+            "Address 3": address3.text,
+            "Phone": phone.text  # You can fill this in as needed
+        })
     except NoSuchElementException:
-        error_data.append(item["id"])
+        error_data.append({
+            "id": item["id"],
+            "reason":"No element"
+            })
         print("No data")
-
+    except TimeoutException:
+        time.sleep(5)
+        error_data.append({
+            "id": item["id"],
+            "reason":"No element"
+            })
+        print("No data")
 df = pd.DataFrame(flat_data)
 de = pd.DataFrame(error_data)
 
